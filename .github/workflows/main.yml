@@ -1,1 +1,33 @@
+name: Scrape
 
+on:
+  schedule:
+    - cron: "0 1 * * *"
+  workflow_dispatch:
+  
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Install pipenv
+      run: pipx install pipenv
+    - uses: actions/setup-python@v3
+      with:
+        python-version: '3.10'
+        cache: 'pipenv'
+    - run: pipenv install --python `which python`
+    - name: Run scraper 
+      # run: pipenv run python Scraper.py
+      run: pipenv run python Scraper.py
+    - name: Git status
+      run: git status
+    - name: Add and commit
+      id: add_commit
+      uses: EndBug/add-and-commit@v8
+      with:
+        committer_name: Automated
+        committer_email: actions@users.noreply.github.com
+        message: "Latest data"
+    - name: Push
+      run: git push
